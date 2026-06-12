@@ -1,0 +1,102 @@
+site_name: ALQari Developer Docs
+site_url: https://alqari-ai.github.io/alqari-developer-hub/
+site_description: >-
+  Official developer documentation for ALQari — Arabic-first Document
+  Intelligence APIs for OCR, extraction, validation, chat, and search.
+site_author: ALQari
+
+repo_name: alqari/alqari-developer-hub
+repo_url: https://github.com/alqari/alqari-developer-hub
+edit_uri: edit/main/docs-site/
+
+docs_dir: docs-site
+site_dir: site
+
+theme:
+  name: material
+  language: en
+  palette:
+    - scheme: default
+      primary: deep purple
+      accent: purple
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: deep purple
+      accent: purple
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  font:
+    text: Inter
+    code: JetBrains Mono
+  logo: assets/logo.png
+  favicon: assets/logo.png
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - navigation.footer
+    - search.highlight
+    - search.suggest
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+
+plugins:
+  - search:
+      lang:
+        - en
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/alqari
+    - icon: fontawesome/brands/twitter
+      link: https://twitter.com/alqari_sa
+  generator: false
+  version:
+    provider: mike
+
+extra_css:
+  - assets/extra.css
+
+nav:
+  - Home: index.md
+  - Quickstart: quickstart.md
+  - Authentication: authentication.md
+  - API Overview: api-overview.md
+  - Upload Documents: upload-documents.md
+  - OCR: ocr.md
+  - Extraction: extraction.md
+  - Validation: validation.md
+  - Chat: chat.md
+  - Search: search.md
+  - Webhooks: webhooks.md
+  - Errors: errors.md
+  - Rate Limits: rate-limits.md
+  - Security: security.md

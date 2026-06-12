@@ -1,0 +1,19 @@
+{
+  "name": "alqari-node-examples",
+  "version": "1.0.0",
+  "description": "ALQari API Node.js examples",
+  "type": "module",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "form-data": "^4.0.0"
+  },
+  "scripts": {
+    "upload":   "node upload-document.js",
+    "ocr":      "node run-ocr.js",
+    "extract":  "node run-extraction.js",
+    "validate": "node validate-document.js",
+    "chat":     "node chat-with-document.js"
+  }
+}

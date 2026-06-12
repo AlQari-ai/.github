@@ -1,0 +1,52 @@
+name: Validate OpenAPI Spec
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  redocly-lint:
+    name: Redocly lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install @redocly/cli
+        run: npm install -g @redocly/cli@latest
+
+      - name: Lint openapi.yaml
+        run: redocly lint openapi/openapi.yaml --format=stylish
+
+      - name: Lint openapi.json
+        run: redocly lint openapi/openapi.json --format=stylish
+
+  validate-json-syntax:
+    name: Validate JSON syntax
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate openapi.json is well-formed JSON
+        run: |
+          python3 -c "
+          import json, sys
+          with open('openapi/openapi.json') as f:
+              spec = json.load(f)
+          required = {'openapi', 'info', 'paths'}
+          missing = required - spec.keys()
+          if missing:
+              print(f'ERROR: missing required keys: {missing}', file=sys.stderr)
+              sys.exit(1)
+          print(f'openapi.json OK — {len(spec[\"paths\"])} paths, version {spec[\"info\"][\"version\"]}')
+          "

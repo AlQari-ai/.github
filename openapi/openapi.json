@@ -1,0 +1,520 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "ALQari Document Intelligence API",
+    "version": "1.0.0",
+    "description": "ALQari is an Arabic-first Document Intelligence API platform for OCR, Arabic handwriting recognition, document extraction, validation workflows, chat with documents, and full-text/semantic search.",
+    "contact": {
+      "name": "ALQari Developer Support",
+      "url": "https://alqari.sa/developers",
+      "email": "developers@alqari.sa"
+    },
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.alqari.sa/v1",
+      "description": "Production"
+    },
+    {
+      "url": "https://sandbox.api.alqari.sa/v1",
+      "description": "Sandbox (no billing, 24-hour retention)"
+    }
+  ],
+  "security": [
+    {
+      "BearerAuth": []
+    }
+  ],
+  "tags": [
+    { "name": "Documents",   "description": "Upload and manage documents" },
+    { "name": "OCR",         "description": "Optical Character Recognition" },
+    { "name": "Extraction",  "description": "Structured field extraction" },
+    { "name": "Validation",  "description": "Document validation workflows" },
+    { "name": "Chat",        "description": "Natural language Q&A over documents" },
+    { "name": "Search",      "description": "Full-text and semantic search" },
+    { "name": "Webhooks",    "description": "Real-time event notifications" }
+  ],
+  "paths": {
+    "/documents": {
+      "post": {
+        "operationId": "uploadDocument",
+        "tags": ["Documents"],
+        "summary": "Upload a document",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": ["file"],
+                "properties": {
+                  "file":        { "type": "string", "format": "binary" },
+                  "language":    { "type": "string", "enum": ["ar","en","ar+en","ar-hw"], "default": "ar" },
+                  "tags":        { "type": "array",  "items": { "type": "string" } },
+                  "metadata":    { "type": "object", "additionalProperties": true },
+                  "webhook_url": { "type": "string", "format": "uri" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Document uploaded", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Document" } } } },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "413": { "$ref": "#/components/responses/FileTooLarge" }
+        }
+      },
+      "get": {
+        "operationId": "listDocuments",
+        "tags": ["Documents"],
+        "summary": "List documents",
+        "parameters": [
+          { "$ref": "#/components/parameters/limit" },
+          { "$ref": "#/components/parameters/cursor" }
+        ],
+        "responses": {
+          "200": { "description": "Paginated list of documents", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/DocumentList" } } } },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      }
+    },
+    "/documents/{document_id}": {
+      "parameters": [{ "$ref": "#/components/parameters/document_id" }],
+      "get": {
+        "operationId": "getDocument",
+        "tags": ["Documents"],
+        "summary": "Get document details",
+        "responses": {
+          "200": { "description": "Document details", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Document" } } } },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      },
+      "delete": {
+        "operationId": "deleteDocument",
+        "tags": ["Documents"],
+        "summary": "Delete a document",
+        "responses": {
+          "204": { "description": "Document deleted" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/documents/{document_id}/ocr": {
+      "parameters": [{ "$ref": "#/components/parameters/document_id" }],
+      "post": {
+        "operationId": "runOcr",
+        "tags": ["OCR"],
+        "summary": "Run OCR on a document",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "language":           { "type": "string", "enum": ["ar","en","ar+en","ar-hw"], "default": "ar" },
+                  "detect_orientation": { "type": "boolean", "default": true },
+                  "handwriting":        { "type": "boolean", "default": false },
+                  "pages":              { "type": "array", "items": { "type": "integer" } }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": { "description": "OCR job started", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/OcrResult" } } } },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      },
+      "get": {
+        "operationId": "getOcrResult",
+        "tags": ["OCR"],
+        "summary": "Get OCR result",
+        "responses": {
+          "200": { "description": "OCR result", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/OcrResult" } } } },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/documents/{document_id}/extraction": {
+      "parameters": [{ "$ref": "#/components/parameters/document_id" }],
+      "post": {
+        "operationId": "runExtraction",
+        "tags": ["Extraction"],
+        "summary": "Run structured field extraction",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "schema":    { "type": "array", "items": { "$ref": "#/components/schemas/ExtractionField" } },
+                  "schema_id": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": { "description": "Extraction job started", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ExtractionResult" } } } },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "409": { "$ref": "#/components/responses/Conflict" }
+        }
+      },
+      "get": {
+        "operationId": "getExtractionResult",
+        "tags": ["Extraction"],
+        "summary": "Get extraction result",
+        "responses": {
+          "200": { "description": "Extraction result", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ExtractionResult" } } } },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/documents/{document_id}/validation": {
+      "parameters": [{ "$ref": "#/components/parameters/document_id" }],
+      "post": {
+        "operationId": "runValidation",
+        "tags": ["Validation"],
+        "summary": "Run validation workflow",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "rules":                   { "type": "array", "items": { "$ref": "#/components/schemas/ValidationRule" } },
+                  "human_review_on_failure": { "type": "boolean", "default": false }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Validation result", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ValidationResult" } } } },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      },
+      "get": {
+        "operationId": "getValidationResult",
+        "tags": ["Validation"],
+        "summary": "Get validation result",
+        "responses": {
+          "200": { "description": "Validation result", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ValidationResult" } } } },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/documents/{document_id}/chat": {
+      "parameters": [{ "$ref": "#/components/parameters/document_id" }],
+      "post": {
+        "operationId": "chatWithDocument",
+        "tags": ["Chat"],
+        "summary": "Ask a question about a document",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["message"],
+                "properties": {
+                  "message":         { "type": "string" },
+                  "language":        { "type": "string", "enum": ["ar","en"] },
+                  "conversation_id": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Chat response", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ChatResponse" } } } },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "409": { "$ref": "#/components/responses/Conflict" }
+        }
+      }
+    },
+    "/search": {
+      "post": {
+        "operationId": "searchDocuments",
+        "tags": ["Search"],
+        "summary": "Search across documents",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["query"],
+                "properties": {
+                  "query":   { "type": "string" },
+                  "mode":    { "type": "string", "enum": ["fulltext","semantic","hybrid"], "default": "semantic" },
+                  "limit":   { "type": "integer", "minimum": 1, "maximum": 100, "default": 10 },
+                  "cursor":  { "type": "string" },
+                  "filters": {
+                    "type": "object",
+                    "properties": {
+                      "tags":         { "type": "array", "items": { "type": "string" } },
+                      "document_ids": { "type": "array", "items": { "type": "string" } },
+                      "date_range": {
+                        "type": "object",
+                        "properties": {
+                          "from": { "type": "string", "format": "date" },
+                          "to":   { "type": "string", "format": "date" }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Search results", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/SearchResults" } } } },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      }
+    },
+    "/webhooks": {
+      "get": {
+        "operationId": "listWebhooks",
+        "tags": ["Webhooks"],
+        "summary": "List registered webhooks",
+        "responses": {
+          "200": { "description": "List of webhooks" },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      },
+      "post": {
+        "operationId": "createWebhook",
+        "tags": ["Webhooks"],
+        "summary": "Create a webhook",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["url","events"],
+                "properties": {
+                  "url":    { "type": "string", "format": "uri" },
+                  "events": { "type": "array", "items": { "type": "string" } },
+                  "secret": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Webhook created", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Webhook" } } } },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      }
+    },
+    "/webhooks/{webhook_id}": {
+      "parameters": [
+        { "name": "webhook_id", "in": "path", "required": true, "schema": { "type": "string" } }
+      ],
+      "delete": {
+        "operationId": "deleteWebhook",
+        "tags": ["Webhooks"],
+        "summary": "Delete a webhook",
+        "responses": {
+          "204": { "description": "Webhook deleted" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Pass your ALQari API key as a Bearer token"
+      }
+    },
+    "parameters": {
+      "document_id": {
+        "name": "document_id",
+        "in": "path",
+        "required": true,
+        "schema": { "type": "string" }
+      },
+      "limit": {
+        "name": "limit",
+        "in": "query",
+        "schema": { "type": "integer", "minimum": 1, "maximum": 100, "default": 20 }
+      },
+      "cursor": {
+        "name": "cursor",
+        "in": "query",
+        "schema": { "type": "string" }
+      }
+    },
+    "responses": {
+      "BadRequest":   { "description": "Bad request",    "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+      "Unauthorized": { "description": "Unauthorized",   "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+      "NotFound":     { "description": "Not found",      "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+      "Conflict":     { "description": "Conflict",       "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+      "FileTooLarge": { "description": "File too large", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+    },
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "object",
+            "properties": {
+              "code":       { "type": "string" },
+              "message":    { "type": "string" },
+              "status":     { "type": "integer" },
+              "request_id": { "type": "string" }
+            }
+          }
+        }
+      },
+      "Document": {
+        "type": "object",
+        "properties": {
+          "document_id":   { "type": "string" },
+          "status":        { "type": "string", "enum": ["uploaded","processing","completed","failed"] },
+          "filename":      { "type": "string" },
+          "size_bytes":    { "type": "integer" },
+          "mime_type":     { "type": "string" },
+          "page_count":    { "type": "integer" },
+          "language_hint": { "type": "string" },
+          "tags":          { "type": "array", "items": { "type": "string" } },
+          "metadata":      { "type": "object", "additionalProperties": true },
+          "created_at":    { "type": "string", "format": "date-time" }
+        }
+      },
+      "DocumentList": {
+        "type": "object",
+        "properties": {
+          "data":        { "type": "array", "items": { "$ref": "#/components/schemas/Document" } },
+          "next_cursor": { "type": "string", "nullable": true },
+          "has_more":    { "type": "boolean" }
+        }
+      },
+      "OcrResult": {
+        "type": "object",
+        "properties": {
+          "document_id":   { "type": "string" },
+          "status":        { "type": "string", "enum": ["processing","completed","failed"] },
+          "language":      { "type": "string" },
+          "pages":         { "type": "array", "items": { "$ref": "#/components/schemas/OcrPage" } },
+          "total_pages":   { "type": "integer" },
+          "completed_at":  { "type": "string", "format": "date-time", "nullable": true }
+        }
+      },
+      "OcrPage": {
+        "type": "object",
+        "properties": {
+          "page":            { "type": "integer" },
+          "text":            { "type": "string" },
+          "confidence":      { "type": "number" },
+          "word_count":      { "type": "integer" },
+          "bounding_boxes":  { "type": "array", "items": { "type": "object" } }
+        }
+      },
+      "ExtractionField": {
+        "type": "object",
+        "required": ["name","type"],
+        "properties": {
+          "name":        { "type": "string" },
+          "type":        { "type": "string", "enum": ["string","number","date","boolean","array","address","id_number"] },
+          "description": { "type": "string" }
+        }
+      },
+      "ExtractionResult": {
+        "type": "object",
+        "properties": {
+          "document_id":  { "type": "string" },
+          "status":       { "type": "string", "enum": ["processing","completed","failed"] },
+          "fields":       { "type": "object", "additionalProperties": { "type": "object" } },
+          "completed_at": { "type": "string", "format": "date-time", "nullable": true }
+        }
+      },
+      "ValidationRule": {
+        "type": "object",
+        "required": ["field","rule"],
+        "properties": {
+          "field":   { "type": "string" },
+          "rule":    { "type": "string" },
+          "value":   {},
+          "pattern": { "type": "string" },
+          "values":  { "type": "array" }
+        }
+      },
+      "ValidationResult": {
+        "type": "object",
+        "properties": {
+          "document_id":           { "type": "string" },
+          "status":                { "type": "string", "enum": ["passed","failed","pending_review","reviewed"] },
+          "results":               { "type": "array", "items": { "type": "object" } },
+          "human_review_required": { "type": "boolean" },
+          "review_url":            { "type": "string", "format": "uri", "nullable": true },
+          "completed_at":          { "type": "string", "format": "date-time" }
+        }
+      },
+      "ChatResponse": {
+        "type": "object",
+        "properties": {
+          "document_id":     { "type": "string" },
+          "conversation_id": { "type": "string" },
+          "answer":          { "type": "string" },
+          "citations":       { "type": "array", "items": { "type": "object" } },
+          "created_at":      { "type": "string", "format": "date-time" }
+        }
+      },
+      "SearchResult": {
+        "type": "object",
+        "properties": {
+          "document_id": { "type": "string" },
+          "filename":    { "type": "string" },
+          "score":       { "type": "number" },
+          "snippet":     { "type": "string" },
+          "page":        { "type": "integer" },
+          "tags":        { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "SearchResults": {
+        "type": "object",
+        "properties": {
+          "query":       { "type": "string" },
+          "mode":        { "type": "string" },
+          "results":     { "type": "array", "items": { "$ref": "#/components/schemas/SearchResult" } },
+          "total":       { "type": "integer" },
+          "has_more":    { "type": "boolean" },
+          "next_cursor": { "type": "string", "nullable": true }
+        }
+      },
+      "Webhook": {
+        "type": "object",
+        "properties": {
+          "webhook_id": { "type": "string" },
+          "url":        { "type": "string", "format": "uri" },
+          "events":     { "type": "array", "items": { "type": "string" } },
+          "status":     { "type": "string", "enum": ["active","inactive","failed"] },
+          "created_at": { "type": "string", "format": "date-time" }
+        }
+      }
+    }
+  }
+}

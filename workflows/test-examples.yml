@@ -1,0 +1,144 @@
+name: Test Examples
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  python-syntax:
+    name: Python — syntax check
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.11", "3.12"]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: pip install requests pyyaml
+
+      - name: Compile-check all Python example files
+        run: |
+          echo "Checking examples/python/ ..."
+          python -m compileall -q examples/python/
+          echo "Checking scripts/ ..."
+          python -m compileall -q scripts/
+          echo "All Python files pass syntax check."
+
+      - name: Verify no hardcoded API keys or secrets
+        run: |
+          echo "Scanning for hardcoded credentials ..."
+          # Fail if any file contains a pattern that looks like a real key
+          # (sk_live_ or sk_prod_ prefixes are ALQari production key patterns)
+          if grep -rn --include="*.py" -E "(sk_live_|sk_prod_)[A-Za-z0-9]{16,}" examples/ scripts/; then
+            echo "ERROR: Hardcoded production API key detected." >&2
+            exit 1
+          fi
+          echo "No hardcoded secrets found."
+
+      - name: Verify all scripts read API key from environment
+        run: |
+          echo "Checking that scripts use os.environ for the API key ..."
+          for f in examples/python/*.py scripts/*.py; do
+            if grep -q "ALQARI_API_KEY" "$f"; then
+              if ! grep -qE 'os\.environ' "$f"; then
+                echo "ERROR: $f references ALQARI_API_KEY but does not use os.environ" >&2
+                exit 1
+              fi
+            fi
+          done
+          echo "All scripts use os.environ for the API key."
+
+  node-syntax:
+    name: Node.js — syntax check
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: ["18", "20", "22"]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install example dependencies
+        working-directory: examples/node
+        run: npm install
+
+      - name: Syntax-check all Node.js example files
+        run: |
+          echo "Checking examples/node/ ..."
+          for f in examples/node/*.js; do
+            node --input-type=module --check < "$f" \
+              && echo "  OK: $f" \
+              || { echo "  FAIL: $f" >&2; exit 1; }
+          done
+          echo "All Node.js files pass syntax check."
+
+      - name: Verify no hardcoded API keys or secrets
+        run: |
+          echo "Scanning for hardcoded credentials ..."
+          if grep -rn --include="*.js" -E "(sk_live_|sk_prod_)[A-Za-z0-9]{16,}" examples/node/; then
+            echo "ERROR: Hardcoded production API key detected." >&2
+            exit 1
+          fi
+          echo "No hardcoded secrets found."
+
+      - name: Verify all scripts read API key from environment
+        run: |
+          echo "Checking that scripts use process.env for the API key ..."
+          for f in examples/node/*.js; do
+            if grep -q "ALQARI_API_KEY" "$f"; then
+              if ! grep -q "process\.env" "$f"; then
+                echo "ERROR: $f references ALQARI_API_KEY but does not use process.env" >&2
+                exit 1
+              fi
+            fi
+          done
+          echo "All scripts use process.env for the API key."
+
+  shell-syntax:
+    name: Bash — syntax check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Syntax-check all cURL shell scripts
+        run: |
+          echo "Checking examples/curl/ ..."
+          for f in examples/curl/*.sh; do
+            bash -n "$f" \
+              && echo "  OK: $f" \
+              || { echo "  FAIL: $f" >&2; exit 1; }
+          done
+          echo "All shell scripts pass syntax check."
+
+      - name: Verify scripts use set -euo pipefail
+        run: |
+          echo "Checking strict mode in shell scripts ..."
+          for f in examples/curl/*.sh; do
+            if ! grep -q "set -euo pipefail" "$f"; then
+              echo "WARNING: $f is missing 'set -euo pipefail'" >&2
+            fi
+          done
+
+      - name: Verify no hardcoded API keys in shell scripts
+        run: |
+          if grep -rn --include="*.sh" -E "(sk_live_|sk_prod_)[A-Za-z0-9]{16,}" examples/curl/; then
+            echo "ERROR: Hardcoded production API key detected." >&2
+            exit 1
+          fi
+          echo "No hardcoded secrets found."

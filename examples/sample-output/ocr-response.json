@@ -1,0 +1,112 @@
+{
+  "document_id": "a5aa5d2b-c63d-4645-8ad3-8b142bcfb57c",
+  "file_name": "sample-ar-handwriting.jpg",
+  "status": "completed",
+  "processing_time": 5.356,
+  "total_words": 398,
+  "created_at": "2026-06-06T14:03:33",
+  "download_urls": {
+    "original":   "https://api.alqari.sa/services/ocr-history/a5aa5d2b-c63d-4645-8ad3-8b142bcfb57c/download/original",
+    "ocr":        "https://api.alqari.sa/services/ocr-history/a5aa5d2b-c63d-4645-8ad3-8b142bcfb57c/download/ocr",
+    "extraction": "https://api.alqari.sa/services/ocr-history/a5aa5d2b-c63d-4645-8ad3-8b142bcfb57c/download/extraction",
+    "markdown":   "https://api.alqari.sa/services/ocr-history/a5aa5d2b-c63d-4645-8ad3-8b142bcfb57c/download/markdown",
+    "html":       "https://api.alqari.sa/services/ocr-history/a5aa5d2b-c63d-4645-8ad3-8b142bcfb57c/download/html",
+    "blocks":     "https://api.alqari.sa/services/ocr-history/a5aa5d2b-c63d-4645-8ad3-8b142bcfb57c/download/blocks"
+  },
+  "ocr_url":      "https://api.alqari.sa/services/ocr-output/a5aa5d2b-c63d-4645-8ad3-8b142bcfb57c/ocr",
+  "html_url":     "https://api.alqari.sa/services/ocr-output/a5aa5d2b-c63d-4645-8ad3-8b142bcfb57c/html",
+  "markdown_url": "https://api.alqari.sa/services/ocr-output/a5aa5d2b-c63d-4645-8ad3-8b142bcfb57c/markdown",
+  "blocks_url":   "https://api.alqari.sa/services/ocr-output/a5aa5d2b-c63d-4645-8ad3-8b142bcfb57c/blocks",
+  "layout_url":   "https://api.alqari.sa/services/ocr-output/a5aa5d2b-c63d-4645-8ad3-8b142bcfb57c/layout",
+  "metadata": {
+    "pages": 1,
+    "blocks": 9,
+    "tables": 0,
+    "figures": 0,
+    "skip_vlm": true
+  },
+  "ocr_output": {
+    "ocr": [
+      {
+        "bbox": [[614, 298], [1494, 298], [1494, 394], [614, 394]],
+        "text": "الأمية معوقة للتنمية في كل المجالات",
+        "confidence": 0.7835
+      },
+      {
+        "bbox": [[1327, 444], [1879, 444], [1879, 554], [1327, 554]],
+        "text": "١/ الأمية وأسبابها :.",
+        "confidence": 0.7012
+      },
+      {
+        "bbox": [[1, 549], [1873, 549], [1873, 893], [1, 893]],
+        "text": "تعريف الأمية في الولايات المتحدة: فهى عدم القدرة على القراءة أو الكتابة لعملة بسيطة بأي لغة، ويعرف الطويل الأمية على أنها الجهل بالقراءة والكتابة والحساب وما يرتبط هذا بمهارات الوصُول بهم إلى الحد الأدنى من أساسيات المعرفة.",
+        "confidence": 0.7036
+      },
+      {
+        "bbox": [[0, 892], [1906, 892], [1906, 2768], [0, 2768]],
+        "text": "الأمية لغة هى نسبة إلى الأم وتعنى بقاء الشخص على ما ولدته أمه عليه وما كان عليه عهد الطفولة من الغفلة والسذاجة وعدم القدرة على مواجهة الأمور. وتنقسم الأمية إلى ١- أمية وظيفية وهي عدم قدرة الشخص على قيامه بجميع الأعمال التي تتطلب إلمامه بالقراءة والكتابة. ٢- الأمية الفكرية وهي الجمود الفكري وعدم القدرة على الإبداع والابتكار. ٣- الأمية الثقافية. ٤- الأمية العلمية. ٥- الأمية الاجتماعية. ٦- الأمية التكنولوجية. ٧- الأمية المهنية.",
+        "confidence": 0.7146
+      },
+      {
+        "bbox": [[17, 2761], [1848, 2761], [1848, 2947], [17, 2947]],
+        "text": "أسباب الأمية: هناك عامل مهم جدا لارتفاع معدل الأمية وهي زيادة نسبة عمالة الأطفال وهو منبع الأمية وتسريبهم من المدارس إلى العمل في المواسم الزراعية والسياحية والمهنية.",
+        "confidence": 0.7868
+      }
+    ],
+    "layout": {
+      "pages": 1,
+      "blocks": [
+        {
+          "id": 1,
+          "bbox": [614, 298, 1494, 394],
+          "conf": 0.7835,
+          "page": 1,
+          "text": "الأمية معوقة للتنمية في كل المجالات",
+          "raw_label": "title",
+          "block_type": "heading_1"
+        },
+        {
+          "id": 2,
+          "bbox": [1327, 444, 1879, 554],
+          "conf": 0.7012,
+          "page": 1,
+          "text": "١/ الأمية وأسبابها :.",
+          "raw_label": "paragraph",
+          "block_type": "paragraph"
+        },
+        {
+          "id": 3,
+          "bbox": [1, 549, 1873, 893],
+          "conf": 0.7036,
+          "page": 1,
+          "text": "تعريف الأمية في الولايات المتحدة...",
+          "raw_label": "paragraph",
+          "block_type": "paragraph"
+        },
+        {
+          "id": 4,
+          "bbox": [0, 892, 1906, 2768],
+          "conf": 0.7146,
+          "page": 1,
+          "text": "الأمية لغة هى نسبة إلى الأم...",
+          "raw_label": "paragraph",
+          "block_type": "paragraph"
+        },
+        {
+          "id": 5,
+          "bbox": [17, 2761, 1848, 2947],
+          "conf": 0.7868,
+          "page": 1,
+          "text": "أسباب الأمية...",
+          "raw_label": "paragraph",
+          "block_type": "paragraph"
+        }
+      ],
+      "source": "sample-ar-handwriting.jpg",
+      "tables": [],
+      "figures": [],
+      "page_sizes": { "1": [1956, 3167] }
+    }
+  },
+  "markdown": "## الأمية معوقة للتنمية في كل المجالات\n\n١/ الأمية وأسبابها :.\n\nتعريف الأمية في الولايات المتحدة: فهى عدم القدرة على القراءة أو الكتابة لعملة بسيطة\nبأي لغة، ويعرف الطويل الأمية على أنها الجهل بالقراءة والكتابة والحساب وما يرتبط هذا\nبمهارات الوصُول بهم إلى الحد الأدنى من أساسيات المعرفة.\n\nالأمية لغة هى نسبة إلى الأم وتعنى بقاء الشخص على ما ولدته أمه عليه...\n\nأسباب الأمية: هناك عامل مهم جدا لارتفاع معدل الأمية وهي زيادة نسبة عمالة الأطفال...\n"
+}
